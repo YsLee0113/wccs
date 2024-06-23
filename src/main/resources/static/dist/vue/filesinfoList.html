@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="./static/layui/css/layui.css"/>
+    <link rel="stylesheet" href="./static/layui/style/admin.css" media="all">
+    <link rel="stylesheet" href="./static/layui/style/login.css" media="all">
+    <script src="./static/layui/layui.js"></script>
+
+    <script src="./static/js/vue.js"></script>
+    <script src="./static/js/axios.min.js"></script>
+    <script src="request.js"></script>
+    <script src="./static/js/jquery-1.9.1.min.js"></script>
+    <script src="./static/js/common.js"></script>
+</head>
+<body>
+<body>
+<div id="app">
+    <!--导航条 start-->
+    <ul class="layui-nav layui-bg-blue" id="navDIV" lay-filter="" id="navDIV"
+        style="margin-bottom: 0px;text-align: center;">
+
+    </ul>
+    <!--导航条 end-->
+
+
+    <!--轮播图 //-->
+
+    <div class="layui-carousel" id="test1">
+        <div carousel-item="" id="carouselListDiv">
+        </div>
+    </div>
+    <!--轮播图 \\-->
+
+
+    <!--数据内容区域 \\-->
+
+    <div class="layui-container layadmin-cmdlist-fluid" style="padding-top: 30px;">
+        <table class="layui-table">
+            <tbody>
+            <tr class="layui-bg-blue">
+                <th>编号</th>
+                <th>名称</th>
+                <th>介绍</th>
+                <th>操作</th>
+            </tr>
+
+            <tr v-for="(v,index) in myDataList">
+                <td>{{index + 1}}</td>
+                <td>{{v.name}}</td>
+                <td>{{v.intro}}</td>
+                <td style="width: 180px;">
+                    <a :href="v.picurl"
+                       class="layui-btn layui-btn-normal layui-btn-sm ">点我下载
+                    </a>
+                </td>
+            </tr>
+
+
+            </tbody>
+        </table>
+
+    </div>
+    <!--数据内容区域 //-->
+
+
+    <!--版权区域 \\-->
+    <div class="layui-footer footer footer-index"
+         style="text-align: center;background-color: rgba(0,0,0,0.8);padding: 10px;font-size: 15px;color: #eee;">
+        <div class="layui-main">
+            <h4>© 中国大学慕课之天津分课 版权所有</h4>
+            <p>
+                中国大学慕课之天津分课 前端页面
+            </p>
+        </div>
+    </div>
+    <!--版权区域 //-->
+
+</div>
+</body>
+
+
+<script>
+
+
+    //注意：导航 依赖 element 模块，否则无法进行功能性操作
+    var select1_sex; //性别使用
+    var layer;
+    layui.use(['element', 'layer', "form"], function () {
+        var element = layui.element;
+        layer = layui.layer;
+        form = layui.form;
+        //…
+    });
+    layui.use('carousel', function () {
+        var carousel = layui.carousel;
+        //建造实例
+        carousel.render({
+            elem: '#test1'
+            , width: '100%' //设置容器宽度
+            , arrow: 'always' //始终显示箭头
+            //, anim: 'updown' //切换动画方式
+        });
+    });
+
+    layui.use('form', function () {
+        var form = layui.form;
+        form.on("select(select01)", function (data) {
+            select1_sex = data.value;
+        });
+
+    });
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                loginUserinfo: {},//用户登录信息存储
+                keyword: "",   //搜素关键词
+                myDataList: []  //数据存储
+            }
+        },
+        created() {
+            getCarouselList();//查询轮播图
+            this.getLoginUserinfo();
+            this.getSysteminfo();
+            this.getMyDataListList();
+        },
+        mounted() {
+
+        },
+        methods: {
+            getSysteminfo() { //加载系统配置
+
+            },
+            getLoginUserinfo() { //获取登录用户
+                if (sessionStorage.getItem('loginUserinfo') != null) {
+                    this.loginUserinfo = JSON.parse(sessionStorage.getItem('loginUserinfo'));//获取登录信息
+                }
+            },
+            deleteInfo(e) { //删除信息
+                var dataid = e.target.getAttribute('dataid');
+                var url = '/updateAction';
+                var data = {"sql": "delete  from workinfo where id='@'".replace('@', dataid)}
+                post(url, data).then(response => {
+                    this.getMyDataListList();
+                    layer.msg("刪除成功");
+
+                }).catch(err => {
+                    console.log(err);
+                });
+            },
+            submitBtn(wname) { //显示详情
+                location.href = "homeworkAdd.html?wname=" + encodeURI(wname);
+            },
+            getMyDataListList() { //加载数据
+
+                var url = '/selectAction';
+                var wuser = this.loginUserinfo.name;
+                // var data = {"sql": `select * from workinfo where  wuser='${wuser}' `}
+                var data = {"sql": `select * from filesinfo  `}
+                post(url, data).then(response => {
+                    this.myDataList = response.data;
+                    console.log(response.data)
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
+        }
+    });
+
+
+</script>
+
+<style>
+    body {
+        background: url('static/bg_demo.jpg');
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-attachment: fixed;
+    }
+
+    .layadmin-cmdlist-fluid {
+        background: rgba(255, 255, 255, 0.80);
+        margin-top: 0px;
+        padding-top: 30px;
+    }
+</style>
+</body>
+</html>

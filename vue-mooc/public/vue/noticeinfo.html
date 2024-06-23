@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>系统公告</title>
+    <link rel="stylesheet" type="text/css" href="./static/layui/css/layui.css"/>
+    <link rel="stylesheet" href="./static/layui/style/admin.css" media="all">
+    <link rel="stylesheet" href="./static/layui/style/template.css" media="all">
+    <script src="./static/layui/layui.js"></script>
+      <script src="./static/js/vue.js"></script>
+    <script src="./static/js/axios.min.js"></script>
+    <script src="request.js"></script>
+</head>
+<body>
+<body>
+<div id="app">
+    <!--导航条 start-->
+    <ul class="layui-nav layui-bg-blue" id="navDIV" lay-filter="" id="navDIV" style="margin-bottom: 0px;text-align: center;">
+
+    </ul>
+    <!--导航条 end-->
+
+    <!--轮播图 //-->
+
+    <div class="layui-carousel" id="test1">
+        <div carousel-item="" id="carouselListDiv">
+        </div>
+    </div>
+    <!--轮播图 \\-->
+
+
+    <!--数据内容区域 \\-->
+
+    <div class="layui-container layadmin-cmdlist-fluid"
+         style="padding-top: 30px;background-color: #fff;border-radius: 10px;">
+
+        <form class="layui-form" action="#" onsubmit="return false;" method="post">
+            <div class="layui-form-item" style="text-align: center;">
+                <div class="layui-inline">
+                    <div class="layui-input-inline" style="">
+                        <input type="text" class="layui-input dateIcon" name="keyword" id="keyword"
+                               v-model="keyword"
+                               placeholder="请输入搜索关键词"
+                               style="width: 240px;">
+                    </div>
+                    <div class="layui-input-inline">
+                        <button @click="mySearch()" type="submit" class="layui-btn layui-btn-blue"><i
+                                class="layui-icon layui-icon-search"></i> 搜索
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+
+        <div class="layui-row layui-col-space30" style="margin-top: 50px;">
+
+            <div class="layui-collapse" v-for="v in myDataList"
+                 style="border: 0px;background-color: rgba(255,255,255,0.3);">
+                <div class="layui-colla-item" style="border: 1px #eee solid;border-radius: 10px;">
+                    <h2 style="border-top-left-radius: 10px;border-top-right-radius: 10px;" class="layui-colla-title">
+                        {{v.noticetitle}} <i class="layui-icon layui-colla-icon"></i>
+                        <span style="color: #999;" class="layui-layout-right">{{v.noticeaddtime}}&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    </h2>
+                    <div class="layui-colla-content layui-show">{{v.noticecontent}}</div>
+                </div>
+                <div style="height: 10px; "></div>
+            </div>
+
+            <div class="layui-col-md12 layui-col-sm12">
+                <div id="demo0"></div>
+            </div>
+
+
+        </div>
+
+    </div>
+    <!--数据内容区域 //-->
+
+
+    <!--版权区域 \\-->
+    <div class="layui-footer footer footer-index"
+         style="text-align: center;background-color: rgba(0,0,0,0.8);padding: 10px;font-size: 15px;color: #eee;">
+        <div class="layui-main">
+            <h4>© 中国大学慕课之天津分课 版权所有</h4>
+            <p>
+                中国大学慕课之天津分课 前端页面
+            </p>
+        </div>
+    </div>
+    <!--版权区域 //-->
+
+</div>
+<style>
+
+    body {
+        background: url(static/bg_demo.jpg);
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-attachment: fixed;
+    }
+</style>
+</body>
+<script>
+
+
+    //注意：导航 依赖 element 模块，否则无法进行功能性操作
+    var layer;
+    layui.use(['element', 'layer'], function () {
+        var element = layui.element;
+        layer = layui.layer;
+        //…
+    });
+    layui.use('carousel', function () {
+        var carousel = layui.carousel;
+        //建造实例
+        carousel.render({
+            elem: '#test1'
+            , width: '100%' //设置容器宽度
+            , arrow: 'always' //始终显示箭头
+            //, anim: 'updown' //切换动画方式
+        });
+    });
+
+
+    var app = new Vue({
+        el: '#app',
+        data() {
+            return {
+                loginUserinfo: {},//用户登录信息存储
+                keyword: "",   //搜素关键词
+                myDataList: []  //数据存储
+            }
+        },
+        created() {
+            getCarouselList();//查询轮播图
+            this.getMyDataListList();
+            this.getLoginUserinfo();
+            this.getSysteminfo();
+
+        },
+        mounted() {
+
+        },
+        methods: {
+            getSysteminfo() { //加载系统配置
+
+            },
+            getLoginUserinfo() { //获取登录用户
+                if (sessionStorage.getItem('loginUserinfo') != null) {
+                    this.loginUserinfo = JSON.parse(sessionStorage.getItem('loginUserinfo'));//获取登录信息
+                }
+            },
+            mySearch() {  //搜索
+                this.getMyDataListList();
+            },
+            getMyDataListList() { //加载数据
+                var url = '/vue/noticeinfoList';
+                var data = {"keyword": this.keyword}
+                post(url, data).then(response => {
+                    this.myDataList = response.data;
+                    //console.log(response.data);
+                    //layer.msg("数据查询成功");
+                }).catch(err => {
+                    console.log(err);
+                });
+            }
+        }
+    });
+
+
+</script>
+
+</body>
+
+</html>
